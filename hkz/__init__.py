@@ -5,13 +5,12 @@ import os.path
 import urllib
 import urllib2
 import requests
-import socket
 import time
 import StringIO
 import chardet
-#from PIL import Image
+# from PIL import Image
 
-from eggs.utils.conf import confs, proxy_ips
+from eggs.utils.conf import proxy_ips
 
 
 class BaseDownloadHtml(object):
@@ -131,14 +130,4 @@ class BaseDownloadHtml(object):
 
 
 if __name__ == '__main__':
-    from pyquery import PyQuery
-    # g_url = 'https://mdskip.taobao.com/core/initItemDetail.htm?isApparel=true&cartEnable=true&isSecKill=false&tryBeforeBuy=false&isForbidBuyItem=false&isUseInventoryCenter=false&addressLevel=2&showShopProm=false&offlineShop=false&queryMemberRight=true&sellerPreview=false&service3C=false&isRegionLevel=false&tmallBuySupport=true&household=false&cachedTimestamp=1441870902037&isAreaSell=false&progressiveSupport=true&itemId=36424250160&callback=setMdskip&timestamp=1441871169981&areaId=810000&cat_id=50025135'
-    g_url = 'http://finance.sina.com.cn/chanjing/cyxw/20140615/081019415534.shtml'
-    headers = {'referer': 'https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.Fn7NlQ&id=36424250160&skuId=77598565279&areaId=810000&cat_id=50025135&rn=dd660f9a7ceea4e4235a8bfd76599d0b&user_id=408107205&is_b=1'}
-
-    # html = BaseDownloadHtml().get_html(g_url)[0]
-    html = BaseDownloadHtml().downloader_browser(g_url)
-    print html
-    # document = PyQuery(html)
-    # print document('#J_AttrUL').text()
-
+    pass

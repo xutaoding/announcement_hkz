@@ -4,7 +4,6 @@
 import sys
 reload(sys)
 sys.setdefaultencoding("utf8")
-sys.path.append('/home/xutaoding/hk_update/autumn/')
 
 import re
 import os
@@ -16,11 +15,15 @@ from random import sample
 from string import letters, digits
 from datetime import date, datetime
 from eggs.db.mongodb import Mongodb
-from crawler import BaseDownloadHtml
+from . import BaseDownloadHtml
 from eggs.utils.up_server import UpServerWin
 
-temp_store_file_path = '/home/xutaoding/hk_update/files/'
-#temp_store_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'files').replace('\\', '/')
+from passage.ttypes import Strategy, Storage, SObject
+from passage.PassageService import Client
+from thrift.protocol import TBinaryProtocol
+from thrift.transport import TSocket, TTransport
+
+temp_store_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'files/').replace('\\', '/')
 
 
 def pdf_size_pages(pdf_path):
@@ -45,15 +48,48 @@ def md5(md5_str):
 
 
 def download(path, name, ext, body):
+    print 'ddd:', path + name + ext
 
+    fp = open(path + name + ext, 'wb')
     try:
-        with open(path + name + ext, 'wb') as fd:
-            fd.write(body)
+        fp.write(body)
+    except Exception as e:
+        print 'msg:', e
     finally:
-        pass
+        fp.close()
 
 
-def compressed_zip(path, fn, store_path):
+def upload_s3(local_path, name, ext):
+    host = '54.223.53.153'
+    port = 8888
+
+    root_path = '/announce/hkz/'
+
+    bucket_name = 'cn.com.chinascope.dfs'
+    ymd = str(date.today()).replace('-', '')
+    s3_path = os.path.join(root_path, ymd + '/').replace('\\', '/')
+
+    socket = TSocket.TSocket(host, port)
+    transport = TTransport.TBufferedTransport(socket)
+    protocol = TBinaryProtocol.TBinaryProtocol(transport)
+    client = Client(protocol)
+    transport.open()
+
+    print 'ooo:', local_path + name + ext
+    with open(local_path + name + ext, 'rb') as fp:
+        data = fp.read()
+
+    s3_strategy = Strategy(Storage.S3CN, bucket_name)
+    client.putObject(s3_strategy, SObject(key=s3_path + name + ext, data=data or ''))
+    transport.open()
+
+    for filename in os.listdir(local_path):
+        os.remove(local_path + filename)
+
+    return s3_path
+
+
+def compressed_zip(path, fn):
     ext = '.zip'
     files = os.listdir(path)
     temp_path = path + fn + '.zip'
@@ -66,47 +102,39 @@ def compressed_zip(path, fn, store_path):
     finally:
         z.close()
 
-    copy_command = "cp -f %s %s" % (temp_path, store_path)
-    os.system(copy_command)
-    os.remove(temp_path)
     return ext
 
 
-def document(url, ext, fn, temp_path=r'D:/pdf' + os.sep):
-    # below lines get path of strorage at 192.168.250.206
-    root_path = '/mfs/d01/'
+def document(url, ext, fn, temp_path):
+    # below lines get path of store at Amazon S3
     multi_files_path = temp_path
-    y_m_d = '/'.join(str(date.today()).split('-'))
-    return_path = os.path.join('announce/hkcn/', y_m_d + os.sep).replace('\\', '/')
-    path = os.path.join(root_path, return_path)
 
     if not os.path.exists(multi_files_path):
         os.makedirs(multi_files_path)
 
     part_url, _ext = url[:url.rfind('/') + 1], '.' + ext
-    if not os.path.exists(path):
-        os.makedirs(path)
 
     if ext.lower() == 'htm':
         pat_href = re.compile(r'<a.*?href="(.*?)".*?>', re.S)
         body = BaseDownloadHtml().get_html(url, encoding=True)[0]
         hrefs = pat_href.findall(body)
+
         if not hrefs:
-            download(path, fn, _ext, body)
+            download(multi_files_path, fn, _ext, body)
         elif len(hrefs) == 1:
             href, _ext = hrefs[0].strip().replace('./', ''), hrefs[0][hrefs[0].rfind('.'):]
             body = BaseDownloadHtml().get_html(part_url + href)[0]
-            download(path, fn, _ext, body)
+            download(multi_files_path, fn, _ext, body)
         else:
             for href in hrefs:
                 href, _ext, fne = href.strip().replace('./', ''), href[href.rfind('.'):], href[href.rfind('/') + 1:href.rfind('.')]
                 body = BaseDownloadHtml().get_html(part_url + href)[0]
                 download(multi_files_path, fne, _ext, body)
-            _ext = compressed_zip(multi_files_path, fn, path)
+            _ext = compressed_zip(multi_files_path, fn)
     else:
         body = BaseDownloadHtml().get_html(url)[0]
-        download(path, fn, _ext, body)
-    return path + fn + _ext, _ext,  return_path
+        download(multi_files_path, fn, _ext, body)
+    return multi_files_path + fn + _ext, _ext
 
 
 def ssh_cmd(ip, passwd, cmd):
@@ -140,8 +168,8 @@ def upload_linux_to_linux(pdf_name):
     import pexpect
     y_m_d = str(date.today()).split('-')
     store_path = 'announce/hkcn/' + '/'.join(y_m_d) + '/'
-    # print 'scp /opt/hk_update/files/%s root@192.168.250.206:/mfs/d01/announce/%s' % (pdf_name, '/'.join(y_m_d))
-    child = pexpect.spawn('scp /opt/hk_update/files/%s root@192.168.250.206:/mfs/d01/announce/hkcn/%s' % (pdf_name, '/'.join(y_m_d)))
+    # print 'scp /opt/announcement_otc/files/%s root@192.168.250.206:/mfs/d01/announce/%s' % (pdf_name, '/'.join(y_m_d))
+    child = pexpect.spawn('scp /opt/announcement_hkz/files/%s root@192.168.250.206:/mfs/d01/announce/hkcn/%s' % (pdf_name, '/'.join(y_m_d)))
     try:
         ssh_cmd('192.168.250.206', 'chinascope', 'mkdir -p /mfs/d01/announce/hkcn/%s' % '/'.join(y_m_d))
         while 1:
@@ -157,8 +185,8 @@ def upload_linux_to_linux(pdf_name):
         child.interact()
         child.close()
         try:
-            # print '/opt/hk_update/files/%s' % (pdf_name)
-            os.remove('/opt/hk_update/files/%s' % (pdf_name))
+            # print '/opt/announcement_otc/files/%s' % (pdf_name)
+            os.remove('/opt/announcement_hkz/files/%s' % (pdf_name))
         except:
             pass
     return store_path
@@ -250,24 +278,30 @@ def random_title(title):
 
 def post_dict(secu, pub_date, cat, title, docu_url, cat_origin, coll_cat):  # cat is list
     fn, ext = random_title(title), docu_url[docu_url.rfind('.') + 1:].strip()
-    # print 'fn  :', fn, 'ext', ext
-    # abspath, _ext = document(docu_url, ext, fn)
-    abspath, _ext, store_path = document(docu_url, ext, fn, temp_store_file_path)
-    # print 'abspath:', abspath, '_ext:', _ext
+
+    abspath, _ext = document(docu_url, ext, fn, temp_store_file_path)
+    s3_path = upload_s3(temp_store_file_path, fn, _ext)
+    print 'abspath:', abspath, '_ext:', _ext
 
     byts, pn = os.path.getsize(abspath), pdf_size_pages(abspath) if ext.lower() == 'pdf' else 1
     with open(abspath) as fd:
         _md5 = md5(fd.read(200))
    
     # if run program at 192.168.250.206, not need use `upload_win_to_linux` or `upload_linux_to_linux` method
-    #store_path = upload_win_to_linux(abspath, fn + _ext, path=r'D:\pdf' + os.sep)
-    #store_path = upload_linux_to_linux(fn + _ext)
+    # store_path = upload_win_to_linux(abspath, fn + _ext, path=r'D:\pdf' + os.sep)
+    # store_path = upload_linux_to_linux(fn + _ext)
 
-    files = {'fn': fn, 'ext': _ext[1:], 'bytes': byts, 'pn': pn, 'md5': _md5, 'src': docu_url, 'url': store_path}
-    data = {'title': title, 'file': files, 'valid': '1', 'pdt': pub_date, 'cat': get_cat(cat, pub_date, coll_cat),
-            'typ': None, 'secu': secu, 'pid': '', 'pubid': '', 'upu': '000000', 'upt': datetime.now(),
-            'cru': '000000', 'crt': datetime.now(), 'src': '', 'sid': docu_url, 'effect': None, 'stat': 2,
-            'check': False, 'cat_origin': cat_origin}
-    # coll_cat.disconnect()
+    files = {
+        'fn': fn, 'ext': _ext[1:], 'bytes': byts, 'pn': pn,
+        'md5': _md5, 'src': docu_url, 'url': s3_path
+    }
+
+    data = {
+        'title': title, 'file': files, 'valid': '1', 'pdt': pub_date,
+        'cat': get_cat(cat, pub_date, coll_cat), 'typ': None, 'secu': secu,
+        'pid': '', 'pubid': '', 'upu': '000000', 'upt': datetime.now(), 'cru': '000000',
+        'crt': datetime.now(), 'src': '', 'sid': docu_url, 'effect': None, 'stat': 2,
+        'check': False, 'cat_origin': cat_origin
+    }
     return data
 

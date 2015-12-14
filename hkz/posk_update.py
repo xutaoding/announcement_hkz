@@ -4,17 +4,16 @@
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-sys.path.append('/home/xutaoding/hk_update/autumn/')
 
 import re
 import json
 import datetime
 from time import sleep
 from pyquery import PyQuery
-from crawler import BaseDownloadHtml
+from . import BaseDownloadHtml
 from eggs.db.mongodb import Mongodb
-from crawler.post_hk.tools import get_secu, post_dict
-from crawler.post_hk.config import post_params, codes_date
+from .tools import get_secu, post_dict
+from .config import post_params, codes_date
 
 
 class PoskUpdate(BaseDownloadHtml):
@@ -28,7 +27,7 @@ class PoskUpdate(BaseDownloadHtml):
 
     def web_form_view_state(self, document, start=None):
         view_state_ = document('#__VIEWSTATE').attr('value')
-	if self.__upt is None:
+        if self.__upt is None:
             return post_params(view_state_, self.__code, start=start)
         fy, fm, fd = self.__upt.split('-')
         return post_params(view_state_, self.__code, fy=fy, fm=fm, fd=fd, start=start, upt='yes')
@@ -55,7 +54,7 @@ class PoskUpdate(BaseDownloadHtml):
             cat = cat_str[cat_str.find('[') + len('['):cat_str.rfind(']')]
             return first + [item.strip() for item in cat.split(' / ')]
 
-	if '(' in cat_str:
+        if '(' in cat_str:
             return [[re.compile(r'\(.*?\)(.*)').findall(cat_str)[0].strip()]]
         else:
             return [[cat_str]]
@@ -80,7 +79,7 @@ class PoskUpdate(BaseDownloadHtml):
         for ids in range(3, 23):
             _ids = '0' + str(ids) if len(str(ids)) == 1 else str(ids)
             date_pub = document('#ctl00_gvMain_ctl%s_lbDateTime' % _ids).text()
-	    com_code = document('#ctl00_gvMain_ctl%s_lbStockCode' % _ids).text()
+            com_code = document('#ctl00_gvMain_ctl%s_lbStockCode' % _ids).text()
             cat_text = document('#ctl00_gvMain_ctl%s_lbShortText' % _ids).text()
             doc_title = document('#ctl00_gvMain_ctl%s_hlTitle' % _ids).text()
             post_file = document('#ctl00_gvMain_ctl%s_hlTitle' % _ids).attr('href')
@@ -138,7 +137,7 @@ def update():
             ktt += 1
             for code_ in codes:
                 secu = get_secu(code_, coll_secu)
-		print 'secu:', secu
+                print 'secu:', secu
                 if secu and not coll_in.get({'sid': url, 'secu.0.cd': secu[0]['cd']}, {'title': 1}):
                     print '\t[%s ->> ktt:%s]' % (code, ktt), '|', code_, '|', dt, '|', title, '|', url
                     try:
@@ -146,16 +145,18 @@ def update():
                         coll_in.insert(hk_data)
                     except Exception as e:
                         print '\t[%s] |%s|upload error: %s!' % (code_, dt, e.message)
-			raise e
+                        raise e
 
                     inds_mon = coll_in.get({'sid': url}, {'title': 1})
-                    ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?indexer=announce_hkz&taskids="
+                    ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
+                              "indexer=announce_hkz&taskids="
                     if inds_mon:  # 创建索引
                         jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
                         if json.loads(jdata)['code'] == 200:
                             print '\tcreate index is ok!\n\n'
-	    if ktt % 80 == 0:
-                sleep(2 * 60)
+
+                if ktt % 80 == 0:
+                        sleep(2 * 60)
 
     coll_in.disconnect()
     coll_cat.disconnect()

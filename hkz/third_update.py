@@ -4,18 +4,16 @@
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-sys.path.append('/home/xutaoding/hk_update/autumn/')
 
 import re
 import datetime
 import json
-from time import sleep, strftime
 from pyquery import PyQuery
-from crawler import BaseDownloadHtml
+from . import BaseDownloadHtml
 from eggs.db.mongodb import Mongodb
 
-from crawler.post_hk.config import post_params
-from crawler.post_hk.tools import get_secu, post_dict
+from .config import post_params
+from .tools import get_secu, post_dict
 
 
 class ThirdUpdate(BaseDownloadHtml):
@@ -32,7 +30,7 @@ class ThirdUpdate(BaseDownloadHtml):
             document = PyQuery(self.get_html(self.__b_url)[0])
         view_state_ = document('#__VIEWSTATE').attr('value')
         return post_params(view_state_, fy=fy, fm=fm, fd=fd, start=start)
-	#return post_params(view_state_, fy='2015', fm='05', fd='06', start=start, upt='yes')
+        # return post_params(view_state_, fy='2015', fm='05', fd='06', start=start, upt='yes')
 
     def pages_num(self, docum):
         pages_pat = re.compile(r'(\d+)', re.S)
@@ -55,7 +53,7 @@ class ThirdUpdate(BaseDownloadHtml):
             cat = cat_str[cat_str.find('[') + len('['):cat_str.rfind(']')]
             return first + [item.strip() for item in cat.split(' / ')]
 
-	if '(' in cat_str:
+        if '(' in cat_str:
             return [[re.compile(r'\(.*?\)(.*)').findall(cat_str)[0].strip()]]
         else:
             return [[cat_str]]
@@ -110,33 +108,22 @@ def third_update():
             secu = get_secu(code, coll_secu)
             if secu and not coll_in.get({'sid': url, 'secu.0.cd': secu[0]['cd']}, {'title': 1}):
                 print 'kt:', kt, '|', code, '|',  dt, '|', url, '\n|', title
-		try:
+
+                try:
                     hk_data = post_dict(secu, dt, cat, title, url, cat_origin, coll_cat)
                     coll_in.insert(hk_data)
-		except Exception as e:
+                except Exception as e:
                     print 'Error:', e.message
-		    pass
 
-                #创建索引
-                inds_mon = coll_in.get({'sid': url}, {'title': 1})
-                ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?indexer=announce_hkz&taskids="
-                if inds_mon:
-                    jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
-                    if json.loads(jdata)['code'] == 200:
-                        print '\tcreate index is ok!\n\n'
+                    # 创建索引
+                    inds_mon = coll_in.get({'sid': url})
+                    ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
+                              "indexer=announce_hkz&taskids="
+                    if inds_mon:
+                        jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
+                        if json.loads(jdata)['code'] == 200:
+                            print '\tcreate index is ok!\n\n'
     coll_in.disconnect()
     coll_cat.disconnect()
     coll_secu.disconnect()
 
-
-if __name__ == '__main__':
-    while 1:
-        if strftime('%H%M') not in ['0130', '0330', '0700', '0930', '1515']:
-            print strftime('%Y-%m-%d %H:%M:%S %A')
-            sleep(20.0)
-        else:
-	    try:
-                third_update()
-	    except:
-		pass
-    #third_update()
