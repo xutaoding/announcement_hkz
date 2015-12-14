@@ -48,9 +48,8 @@ def md5(md5_str):
 
 
 def download(path, name, ext, body):
-    print 'ddd:', path + name + ext
-
     fp = open(path + name + ext, 'wb')
+
     try:
         fp.write(body)
     except Exception as e:
@@ -75,7 +74,6 @@ def upload_s3(local_path, name, ext):
     client = Client(protocol)
     transport.open()
 
-    print 'ooo:', local_path + name + ext
     with open(local_path + name + ext, 'rb') as fp:
         data = fp.read()
 
@@ -92,12 +90,12 @@ def upload_s3(local_path, name, ext):
 def compressed_zip(path, fn):
     ext = '.zip'
     files = os.listdir(path)
-    temp_path = path + fn + '.zip'
+    temp_path = path + fn + ext
     z = zipfile.ZipFile(temp_path, 'w')
 
     try:
         for f in files:
-            z.write(path + f)
+            z.write(path + f, f)
             os.remove(path + f)
     finally:
         z.close()
@@ -280,8 +278,7 @@ def post_dict(secu, pub_date, cat, title, docu_url, cat_origin, coll_cat):  # ca
     fn, ext = random_title(title), docu_url[docu_url.rfind('.') + 1:].strip()
 
     abspath, _ext = document(docu_url, ext, fn, temp_store_file_path)
-    s3_path = upload_s3(temp_store_file_path, fn, _ext)
-    print 'abspath:', abspath, '_ext:', _ext
+    # print 'abspath:', abspath, '_ext:', _ext
 
     byts, pn = os.path.getsize(abspath), pdf_size_pages(abspath) if ext.lower() == 'pdf' else 1
     with open(abspath) as fd:
@@ -290,6 +287,7 @@ def post_dict(secu, pub_date, cat, title, docu_url, cat_origin, coll_cat):  # ca
     # if run program at 192.168.250.206, not need use `upload_win_to_linux` or `upload_linux_to_linux` method
     # store_path = upload_win_to_linux(abspath, fn + _ext, path=r'D:\pdf' + os.sep)
     # store_path = upload_linux_to_linux(fn + _ext)
+    # s3_path = upload_s3(temp_store_file_path, fn, _ext)
 
     files = {
         'fn': fn, 'ext': _ext[1:], 'bytes': byts, 'pn': pn,
