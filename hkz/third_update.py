@@ -115,14 +115,14 @@ def third_update():
                 except Exception as e:
                     print 'Error:', e.message
 
-                    # 创建索引
-                    inds_mon = coll_in.get({'sid': url})
-                    ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
-                              "indexer=announce_hkz&taskids="
-                    if inds_mon:
-                        jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
-                        if json.loads(jdata)['code'] == 200:
-                            print '\tcreate index is ok!\n\n'
+                # 创建索引
+                inds_mon = coll_in.get({'sid': url})
+                ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
+                          "indexer=announce_hkz&taskids="
+                if inds_mon:
+                    jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
+                    if json.loads(jdata)['code'] == 200:
+                        print '\tcreate index is ok!\n\n'
     coll_in.disconnect()
     coll_cat.disconnect()
     coll_secu.disconnect()
