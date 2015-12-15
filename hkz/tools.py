@@ -287,7 +287,7 @@ def post_dict(secu, pub_date, cat, title, docu_url, cat_origin, coll_cat):  # ca
     # if run program at 192.168.250.206, not need use `upload_win_to_linux` or `upload_linux_to_linux` method
     # store_path = upload_win_to_linux(abspath, fn + _ext, path=r'D:\pdf' + os.sep)
     # store_path = upload_linux_to_linux(fn + _ext)
-    # s3_path = upload_s3(temp_store_file_path, fn, _ext)
+    s3_path = upload_s3(temp_store_file_path, fn, _ext)
 
     files = {
         'fn': fn, 'ext': _ext[1:], 'bytes': byts, 'pn': pn,
