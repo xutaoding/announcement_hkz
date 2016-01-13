@@ -12,6 +12,7 @@ import hashlib
 import shutil
 import zipfile
 from random import sample
+import timeout_decorator
 from string import letters, digits
 from datetime import date, datetime
 from eggs.db.mongodb import Mongodb
@@ -58,6 +59,7 @@ def download(path, name, ext, body):
         fp.close()
 
 
+@timeout_decorator.timeout(60)
 def upload_s3(local_path, name, ext):
     host = '54.223.53.153'
     port = 8888
@@ -68,18 +70,21 @@ def upload_s3(local_path, name, ext):
     ymd = str(date.today()).replace('-', '')
     s3_path = os.path.join(root_path, ymd + '/').replace('\\', '/')
 
-    socket = TSocket.TSocket(host, port)
-    transport = TTransport.TBufferedTransport(socket)
-    protocol = TBinaryProtocol.TBinaryProtocol(transport)
-    client = Client(protocol)
-    transport.open()
+    try:
+        socket = TSocket.TSocket(host, port)
+        transport = TTransport.TBufferedTransport(socket)
+        protocol = TBinaryProtocol.TBinaryProtocol(transport)
+        client = Client(protocol)
+        transport.open()
 
-    with open(local_path + name + ext, 'rb') as fp:
-        data = fp.read()
+        with open(local_path + name + ext, 'rb') as fp:
+            data = fp.read()
 
-    s3_strategy = Strategy(Storage.S3CN, bucket_name)
-    client.putObject(s3_strategy, SObject(key=s3_path + name + ext, data=data or ''))
-    transport.open()
+        s3_strategy = Strategy(Storage.S3CN, bucket_name)
+        client.putObject(s3_strategy, SObject(key=s3_path + name + ext, data=data or ''))
+        transport.close()
+    except Exception as e:
+        print 'Upload S3 Error:', e
 
     for filename in os.listdir(local_path):
         os.remove(local_path + filename)

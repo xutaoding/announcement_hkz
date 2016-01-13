@@ -145,7 +145,6 @@ def update():
                         coll_in.insert(hk_data)
                     except Exception as e:
                         print '\t[%s] |%s|upload error: %s!' % (code_, dt, e.message)
-                        raise e
 
                     inds_mon = coll_in.get({'sid': url}, {'title': 1})
                     ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
