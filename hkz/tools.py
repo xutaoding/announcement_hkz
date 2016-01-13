@@ -288,6 +288,7 @@ def post_dict(secu, pub_date, cat, title, docu_url, cat_origin, coll_cat):  # ca
     # store_path = upload_win_to_linux(abspath, fn + _ext, path=r'D:\pdf' + os.sep)
     # store_path = upload_linux_to_linux(fn + _ext)
     s3_path = upload_s3(temp_store_file_path, fn, _ext)
+    print 'Upload to S3 is ok'
 
     files = {
         'fn': fn, 'ext': _ext[1:], 'bytes': byts, 'pn': pn,

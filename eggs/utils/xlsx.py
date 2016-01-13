@@ -104,7 +104,8 @@ class XlsxReader(object):
             raise WindowsError("Don't exist: [%s]" % self.__excel_name)
 
         data = self.__open_book.sheet_by_index(self.__sheet_index)
-        keys, rows = [k.strip() for k in data.row_values(0)], data.nrows
+        keys, rows = [str(k).strip() for k in data.row_values(0)], data.nrows
+
         for row in range(1, rows):
             collect = dict()
             for i, item in enumerate(data.row_values(row)):
