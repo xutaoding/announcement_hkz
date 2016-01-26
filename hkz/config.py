@@ -40,8 +40,10 @@ def post_params(view_state, code='', fy='1999', fm='04', fd='01', start=None, up
     params_next = {
         """__VIEWSTATE""": view_state,
         """__VIEWSTATEENCRYPTED""": '',
-        """ctl00$gvMain$ctl01$btnNext.x""": '49',
-        """ctl00$gvMain$ctl01$btnNext.y""": '4',
+        """ctl00$btnNext2.x""": '34',
+        """ctl00$btnNext2.y""": '11',
+        # """ctl00$gvMain$ctl01$btnNext.x""": '34',
+        # """ctl00$gvMain$ctl01$btnNext.y""": '11',
     }
     return start_params if start is None else params_next
 
@@ -50,4 +52,4 @@ def post_params(view_state, code='', fy='1999', fm='04', fd='01', start=None, up
 # code: must string eg: len("00000") == 5, or is None, then crawl all items at date.
 # date: int or string, eg: "0000-00-00", or is None, then crawl all items until today.
 
-codes_date = [(None, '2016-01-11'),]
+codes_date = [(None, '2016-01-25'),]

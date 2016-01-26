@@ -36,6 +36,7 @@ class PoskUpdate(BaseDownloadHtml):
         pages_text = docum('#ctl00_lblDisplay').text()
         pages_ls = self.__pages_pat.findall(pages_text)
         if pages_ls:
+            print 'total items:', pages_ls[-1]
             expression = int(pages_ls[-1]) % 20 == 0
             self.__pages = int(pages_ls[-1]) / 20 if expression else int(pages_ls[-1]) / 20 + 1
         else:
@@ -103,6 +104,8 @@ class PoskUpdate(BaseDownloadHtml):
 
         for page in range(2, self.__pages + 1):
             form_data = self.extract(eve_data)
+            print form_data
+            break
             eve_data = form_data
             print 'page:[%d] done!' % page
         return self.__post_datas
@@ -135,7 +138,7 @@ def update():
         dctu = PoskUpdate(code, query).main()  # codes, date, cat, title, url
         for codes, dt, cat, title, url, cat_origin in dctu:
             ktt += 1
-            print '\t[%s ->> ktt:%s]' % (code, ktt), '|', codes, '|', dt, '|', title, '|n\t', url
+            print '\t[%s ->> ktt:%s]' % (code, ktt), '|', codes, '|', dt, '|', title, '|\n\t', url
 
             for code_ in codes:
                 secu = get_secu(code_, coll_secu)
