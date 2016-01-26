@@ -135,13 +135,12 @@ def update():
         dctu = PoskUpdate(code, query).main()  # codes, date, cat, title, url
         for codes, dt, cat, title, url, cat_origin in dctu:
             ktt += 1
-            print '\t[%s ->> ktt:%s]' % (code, ktt)
+            print '\t[%s ->> ktt:%s]' % (code, ktt), '|', codes, '|', dt, '|', title, '|n\t', url
 
             for code_ in codes:
                 secu = get_secu(code_, coll_secu)
                 print 'secu:', secu
                 if secu and not coll_in.get({'sid': url}, {'title': 1}):
-                    print '\t[%s ->> ktt:%s]' % (code, ktt), '|', code_, '|', dt, '|', title, '|', url
                     try:
                         hk_data = post_dict(secu, dt, cat, title, url, cat_origin, coll_cat)
                         coll_in.insert(hk_data)
