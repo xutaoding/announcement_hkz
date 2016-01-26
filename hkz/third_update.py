@@ -34,7 +34,7 @@ class ThirdUpdate(BaseDownloadHtml):
 
     def pages_num(self, docum):
         pages_pat = re.compile(r'(\d+)', re.S)
-        pages_ls = pages_pat.findall(docum('#ctl00_gvMain_ctl01_lbPageCount').text())
+        pages_ls = pages_pat.findall(docum('#ctl00_lblDisplay').text())
         if pages_ls:
             pages, mod = divmod(int(pages_ls[-1]), 20)
             return pages if mod == 0 else pages + 1

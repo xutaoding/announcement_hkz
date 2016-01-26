@@ -33,7 +33,7 @@ class PoskUpdate(BaseDownloadHtml):
         return post_params(view_state_, self.__code, fy=fy, fm=fm, fd=fd, start=start, upt='yes')
 
     def __pages_num(self, docum):
-        pages_text = docum('#ctl00_gvMain_ctl01_lbPageCount').text()
+        pages_text = docum('#ctl00_lblDisplay').text()
         pages_ls = self.__pages_pat.findall(pages_text)
         if pages_ls:
             expression = int(pages_ls[-1]) % 20 == 0
@@ -98,7 +98,7 @@ class PoskUpdate(BaseDownloadHtml):
     def main(self):
         if self.__post_datas is None:
             self.__post_datas = []
-        eve_data = self.extract()  # 目前更新只抓到第一页
+        eve_data = self.extract()
         print 'page:[1] done!'
 
         for page in range(2, self.__pages + 1):
