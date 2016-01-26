@@ -138,7 +138,7 @@ def update():
         dctu = PoskUpdate(code, query).main()  # codes, date, cat, title, url
         for codes, dt, cat, title, url, cat_origin in dctu:
             ktt += 1
-            print '\t[%s ->> ktt:%s]' % (code, ktt), '|', codes, '|', dt, '|', title, '|\n\t', url
+            print '\t[%s ->> ktt:%s]' % (code, ktt), '|', codes, '|', dt, '|', title, '|', url
 
             for code_ in codes:
                 secu = get_secu(code_, coll_secu)
