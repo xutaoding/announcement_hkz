@@ -82,9 +82,10 @@ def upload_s3(local_path, name, ext):
 
         s3_strategy = Strategy(Storage.S3CN, bucket_name)
         client.putObject(s3_strategy, SObject(key=s3_path + name + ext, data=data or ''))
-        transport.close()
     except Exception as e:
         print 'Upload S3 Error:', e
+    finally:
+         transport.close()
 
     for filename in os.listdir(local_path):
         os.remove(local_path + filename)

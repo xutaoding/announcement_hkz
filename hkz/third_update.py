@@ -116,7 +116,7 @@ def third_update():
                     print 'Error:', e.message
 
                 # 创建索引
-                inds_mon = coll_in.get({'sid': url})
+                inds_mon = coll_in.get({'sid': url}, {'title': 1})
                 ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
                           "indexer=announce_hkz&taskids="
                 if inds_mon:
