@@ -104,8 +104,6 @@ class PoskUpdate(BaseDownloadHtml):
 
         for page in range(2, self.__pages + 1):
             form_data = self.extract(eve_data)
-            print form_data
-            break
             eve_data = form_data
             print 'page:[%d] done!' % page
         return self.__post_datas
