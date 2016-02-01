@@ -62,7 +62,7 @@ class ThirdUpdate(BaseDownloadHtml):
         if self.__post_datas is None:
             self.__post_datas = []
 
-        for ids in range(3, 23):
+        for ids in range(2, 22):
             _ids = '0' + str(ids) if len(str(ids)) == 1 else str(ids)
             date_pub = document('#ctl00_gvMain_ctl%s_lbDateTime' % _ids).text()
             com_code = document('#ctl00_gvMain_ctl%s_lbStockCode' % _ids).text()
