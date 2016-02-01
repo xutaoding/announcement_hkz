@@ -80,7 +80,7 @@ def upload_s3(local_path, name, ext):
         with open(local_path + name + ext, 'rb') as fp:
             data = fp.read()
 
-        print 'length:', len(data), 'fn:', s3_path + name + ext
+        print 'fn:', s3_path + name + ext
         s3_strategy = Strategy(Storage.S3CN, bucket_name)
         client.putObject(s3_strategy, SObject(key=s3_path + name + ext, data=data or ''))
     except Exception as e:
