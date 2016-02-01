@@ -72,12 +72,13 @@ class PoskUpdate(BaseDownloadHtml):
             start_html = self.get_html(self.__base_url)[0]
             form_data = self.web_form_view_state(PyQuery(start_html))
         html = self.get_html(self.__base_url, data=form_data, method='POST', encoding=True)[0]
+        print html
         document = PyQuery(unicode(html, 'utf-8'))
 
         if self.__pages is None:
             self.__pages_num(document)
 
-        for ids in range(3, 23):
+        for ids in range(2, 22):
             _ids = '0' + str(ids) if len(str(ids)) == 1 else str(ids)
             date_pub = document('#ctl00_gvMain_ctl%s_lbDateTime' % _ids).text()
             com_code = document('#ctl00_gvMain_ctl%s_lbStockCode' % _ids).text()

@@ -52,4 +52,4 @@ def post_params(view_state, code='', fy='1999', fm='04', fd='01', start=None, up
 # code: must string eg: len("00000") == 5, or is None, then crawl all items at date.
 # date: int or string, eg: "0000-00-00", or is None, then crawl all items until today.
 
-codes_date = [(None, '2016-01-25'),]
+codes_date = [('00710', '2016-01-29'),]
