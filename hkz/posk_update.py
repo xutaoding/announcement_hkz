@@ -72,7 +72,6 @@ class PoskUpdate(BaseDownloadHtml):
             start_html = self.get_html(self.__base_url)[0]
             form_data = self.web_form_view_state(PyQuery(start_html))
         html = self.get_html(self.__base_url, data=form_data, method='POST', encoding=True)[0]
-        print html
         document = PyQuery(unicode(html, 'utf-8'))
 
         if self.__pages is None:
