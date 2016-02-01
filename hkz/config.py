@@ -24,7 +24,7 @@ def post_params(view_state, code='', fy='1999', fm='04', fd='01', start=None, up
         'ctl00$sel_tier_2_group': '-2',
         'ctl00$sel_tier_2': '-2',
         'ctl00$ddlTierTwo': '59,1,7',
-        'ctl00$ddlTierTwoGroup': '2,1',
+        'ctl00$ddlTierTwoGroup': '19.5',
         'ctl00$txtKeyWord': '',
         'ctl00$rdo_SelectDateOfRelease': 'rbManualRange',
         'ctl00$sel_DateOfReleaseFrom_d': fd,

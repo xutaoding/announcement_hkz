@@ -37,8 +37,8 @@ s3_strategy = Strategy(Storage.S3CN, 'cn.com.chinascope.dfs')
 # client.putObject(s3_strategy, SObject(key='/announce/hkz/20161215/1200.pdf', data=data))
 
 # list
-ll = client.listKeys(s3_strategy, '/announce/hkz/20151214/')
-print ll
+ll = client.listKeys(s3_strategy, '/announce/hkz/20160129/')
+print '\n'.join(ll)
 
 # dd = client.getObject(s3_strategy, '/announce/hkz/20151214/a255aae599d62c3362c803492f4383c6_eBd9047mLc.pdf')
 # print dd
