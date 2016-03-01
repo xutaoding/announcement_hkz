@@ -25,8 +25,8 @@
 
 
 关于错误：
-    有事上传至S3上会出现 [Errno 104] Connection reset by peer 的错误， 可能是由于连接到S3的网络不稳定造成的， 需要一些
-    出错的日志
+
+有时上传至S3上会出现 [Errno 104] Connection reset by peer 的错误， 可能是由于连接到S3的网络不稳定造成的， 需要一些出错的日志
 
 
 
