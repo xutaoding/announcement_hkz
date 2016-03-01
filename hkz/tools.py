@@ -10,6 +10,7 @@ import os
 import os.path
 import hashlib
 import shutil
+import time
 import zipfile
 from random import sample
 from string import letters, digits
@@ -92,6 +93,8 @@ def upload_s3(local_path, name, ext):
     for _recursion in range(10):
         if aws_upload(s3_key, data):
             break
+        else:
+            time.sleep(1.5)
 
     for filename in os.listdir(local_path):
         os.remove(local_path + filename)
