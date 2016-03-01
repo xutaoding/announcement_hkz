@@ -24,5 +24,10 @@
 （1）：下载的港股公告上传 amazon S3 上， 相关函数已在：./hkz/tools.py: upload_s3 function
 
 
+关于错误：
+    有事上传至S3上会出现 [Errno 104] Connection reset by peer 的错误， 可能是由于连接到S3的网络不稳定造成的， 需要一些
+    出错的日志
+
+
 
 
