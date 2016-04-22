@@ -96,9 +96,9 @@ class ThirdUpdate(BaseDownloadHtml):
 
 
 def third_update():
-    coll_in = Mongodb('192.168.250.208', 27017, 'news', 'announcement_hk_chz')
-    coll_cat = Mongodb('192.168.250.200', 27017, 'ada', 'dict_announce_catalog_hk')
-    coll_secu = Mongodb('192.168.250.200', 27017, 'ada', 'base_stock')
+    coll_in = Mongodb('192.168.251.95', 27017, 'news', 'announcement_hk_chz')
+    coll_cat = Mongodb('192.168.251.95', 27017, 'ada', 'dict_announce_catalog_hk')
+    coll_secu = Mongodb('192.168.251.95', 27017, 'ada', 'base_stock')
     kt = 0
     cdctuo = ThirdUpdate().main()
     cd_dt_cat_tit_url_ori = cdctuo if cdctuo else []
@@ -116,14 +116,13 @@ def third_update():
                     print 'Error:', e.message
 
                 # 创建索引
-                inds_mon = coll_in.get({'sid': url}, {'title': 1})
-                ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
-                          "indexer=announce_hkz&taskids="
-                if inds_mon:
-                    jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
-                    if json.loads(jdata)['code'] == 200:
-                        print '\tcreate index is ok!\n\n'
+                # inds_mon = coll_in.get({'sid': url}, {'title': 1})
+                # ind_url = "http://192.168.250.205:17081/indexer/services/indexes/delta.json?" \
+                #           "indexer=announce_hkz&taskids="
+                # if inds_mon:
+                #     jdata = BaseDownloadHtml().get_html(ind_url + str(inds_mon['_id']))[0]
+                #     if json.loads(jdata)['code'] == 200:
+                #         print '\tcreate index is ok!\n\n'
     coll_in.disconnect()
     coll_cat.disconnect()
     coll_secu.disconnect()
-

@@ -24,6 +24,8 @@ from passage.PassageService import Client
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket, TTransport
 
+from aws.bucket import Bucket
+
 temp_store_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'files/').replace('\\', '/')
 
 
@@ -78,7 +80,8 @@ def upload_s3(local_path, name, ext):
         finally:
             transport.close()
 
-    host = '54.223.53.153'
+    # host = '54.223.53.153'
+    host = '122.144.134.96'
     port = 8888
 
     root_path = '/announce/hkz/'
@@ -95,11 +98,22 @@ def upload_s3(local_path, name, ext):
             break
         else:
             time.sleep(1.5)
-
+    else:
+        backup_upload_s3(local_path, name, ext)
     for filename in os.listdir(local_path):
         os.remove(local_path + filename)
 
     return s3_path
+
+
+def backup_upload_s3(local_path, name, ext):
+    root_path = 'announce/hkz/'
+    ymd = str(date.today()).replace('-', '')
+    s3_path = os.path.join(root_path, ymd + '/').replace('\\', '/')
+    s3_key = s3_path + name + ext
+    local_file = local_path + name + ext
+    s3 = Bucket()
+    s3.put(s3_key, local_file)
 
 
 def compressed_zip(path, fn):
@@ -221,7 +235,7 @@ def upload_win_to_linux(upload_file_path, fn, path):
 
 
 def stock_codes():
-    coll, st_codes = Mongodb('192.168.250.200', 27017, 'ada', 'base_stock'), []
+    coll, st_codes = Mongodb('localhost', 27017, 'ada', 'base_stock'), []
     for doc in coll.query().sort([('_id', -1)]):
         try:
             if '_HK_EQ' not in doc['code']:
